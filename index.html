@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ts website pmo 💔💔💔💔</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE/Edge */
+        }
+        
+        #ts-button {
+            padding: 15px 30px;
+            font-size: min(4vw, 24px); /* Responsive font size */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        #ts-button:hover {
+            background-color: #45a049;
+        }
+        
+        .random-text {
+            position: absolute;
+            color: #fff;
+            pointer-events: none;
+            z-index: 1;
+            white-space: nowrap;
+            padding: 5px;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            font-size: min(4vw, 24px); /* Responsive base size */
+        }
+        
+        #click-counter {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            z-index: 10;
+            background-color: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: min(4vw, 32px); /* Responsive font size */
+        }
+    </style>
+</head>
+<body>
+    <div id="click-counter">pmo: 0</div>
+    <button id="ts-button">ts</button>
+
+    <script>
+        const button = document.getElementById('ts-button');
+        const counter = document.getElementById('click-counter');
+        const body = document.body;
+        let clickCount = 0;
+        const existingTexts = [];
+        
+        // Text fragments to choose from
+        const textFragments = ["j*b", "emp*oyment", "🥀", "💔", "ts", "icl", "jail", "prison", "pmo", "sybau"];
+        
+        // Get elements dimensions and positions
+        const counterRect = counter.getBoundingClientRect();
+        const buttonRect = button.getBoundingClientRect();
+        
+        // Minimum distances from protected elements (in vw units for responsiveness)
+        const MIN_DISTANCE_VW = 2; // ~2% of viewport width
+        const PREFERRED_DISTANCE_VW = 4; // ~4% of viewport width
+        
+        const protectedElements = [
+            {
+                // Button position (fixed at center)
+                x: window.innerWidth / 2,
+                y: window.innerHeight / 2,
+                width: buttonRect.width,
+                height: buttonRect.height,
+                type: 'button'
+            },
+            {
+                // Counter position
+                x: counterRect.left + counterRect.width/2,
+                y: counterRect.top + counterRect.height/2,
+                width: counterRect.width,
+                height: counterRect.height,
+                type: 'counter'
+            }
+        ];
+        
+        // Convert vw units to pixels
+        function vwToPx(vw) {
+            return (vw * window.innerWidth) / 100;
+        }
+        
+        function calculateDistanceScore(x, y, width, height) {
+            let score = 0;
+            const centerX = x + width/2;
+            const centerY = y + height/2;
+            
+            // Calculate minimum distances in pixels
+            const minDistancePx = vwToPx(MIN_DISTANCE_VW);
+            const preferredDistancePx = vwToPx(PREFERRED_DISTANCE_VW);
+            
+            // Check against protected elements
+            for (const elem of protectedElements) {
+                const distanceX = Math.abs(centerX - elem.x);
+                const distanceY = Math.abs(centerY - elem.y);
+                const minDistanceX = width/2 + elem.width/2 + minDistancePx;
+                const minDistanceY = height/2 + elem.height/2 + minDistancePx;
+                
+                // Reject if too close to protected elements
+                if (distanceX < minDistanceX && distanceY < minDistanceY) {
+                    return -Infinity;
+                }
+                
+                // Bonus for being near the counter (but not too close)
+                if (elem.type === 'counter') {
+                    const actualDistance = Math.sqrt(
+                        Math.pow(centerX - elem.x, 2) + 
+                        Math.pow(centerY - elem.y, 2)
+                    );
+                    score += 2 * (1 - Math.min(1, actualDistance/(preferredDistancePx*2)));
+                }
+                
+                // Small bonus for being near the button (but not too close)
+                if (elem.type === 'button') {
+                    const actualDistance = Math.sqrt(
+                        Math.pow(centerX - elem.x, 2) + 
+                        Math.pow(centerY - elem.y, 2)
+                    );
+                    score += 1 * (1 - Math.min(1, actualDistance/(preferredDistancePx*2.5)));
+                }
+            }
+            
+            // Penalize overlap with existing texts
+            for (const text of existingTexts) {
+                const distanceX = Math.abs(centerX - text.x);
+                const distanceY = Math.abs(centerY - text.y);
+                const combinedWidth = (width/2 + text.width/2);
+                const combinedHeight = (height/2 + text.height/2);
+                
+                if (distanceX < combinedWidth && distanceY < combinedHeight) {
+                    score -= (1 - distanceX/combinedWidth) * (1 - distanceY/combinedHeight);
+                }
+            }
+            
+            return score;
+        }
+        
+        function findBestPosition(textWidth, textHeight) {
+            let bestPosition = null;
+            let bestScore = -Infinity;
+            const attempts = 150;
+            
+            for (let i = 0; i < attempts; i++) {
+                let x, y;
+                if (Math.random() < 0.6) {
+                    // More likely to appear near counter
+                    x = Math.random() * (window.innerWidth * 0.4);
+                    y = Math.random() * (window.innerHeight * 0.4);
+                } else {
+                    // Sometimes appear elsewhere
+                    x = Math.random() * (window.innerWidth - textWidth);
+                    y = Math.random() * (window.innerHeight - textHeight);
+                }
+                
+                const score = calculateDistanceScore(x, y, textWidth, textHeight);
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestPosition = { x, y, score };
+                    if (score > 1.5) break;
+                }
+            }
+            
+            if (bestScore === -Infinity) {
+                for (let i = 0; i < 50; i++) {
+                    const x = Math.random() * (window.innerWidth - textWidth);
+                    const y = Math.random() * (window.innerHeight - textHeight);
+                    if (calculateDistanceScore(x, y, textWidth, textHeight) > -Infinity) {
+                        return { x, y, score: 0 };
+                    }
+                }
+                return { 
+                    x: Math.random() * (window.innerWidth - textWidth),
+                    y: Math.random() * (window.innerHeight - textHeight),
+                    score: -100 
+                };
+            }
+            
+            return bestPosition;
+        }
+        
+        function resetAll() {
+            existingTexts.forEach(text => {
+                body.removeChild(text.element);
+            });
+            existingTexts.length = 0;
+            clickCount = 0;
+            counter.textContent = `pmo: ${clickCount}`;
+        }
+        
+        function calculateCoverage() {
+            if (existingTexts.length === 0) return 0;
+            
+            const avgTextArea = existingTexts.reduce((sum, text) => {
+                return sum + (text.width * text.height);
+            }, 0) / existingTexts.length;
+            
+            const totalCoverage = existingTexts.length * avgTextArea;
+            const screenArea = window.innerWidth * window.innerHeight;
+            
+            return Math.min(1, totalCoverage / screenArea);
+        }
+        
+        function updateTextSizes() {
+            // Update all existing text sizes based on current viewport
+            const baseSize = Math.min(window.innerWidth * 0.04, 24);
+            existingTexts.forEach(text => {
+                const sizeVariation = parseFloat(text.element.dataset.sizeVariation);
+                text.element.style.fontSize = `${baseSize * sizeVariation}px`;
+                
+                // Re-measure dimensions after resize
+                const rect = text.element.getBoundingClientRect();
+                text.width = rect.width;
+                text.height = rect.height;
+                text.x = parseFloat(text.element.style.left) + text.width/2;
+                text.y = parseFloat(text.element.style.top) + text.height/2;
+            });
+            
+            // Update protected elements positions
+            const counterRect = counter.getBoundingClientRect();
+            protectedElements[1].x = counterRect.left + counterRect.width/2;
+            protectedElements[1].y = counterRect.top + counterRect.height/2;
+            protectedElements[1].width = counterRect.width;
+            protectedElements[1].height = counterRect.height;
+        }
+        
+        button.addEventListener('click', function() {
+            if (calculateCoverage() > 0.85) {
+                resetAll();
+                return;
+            }
+            
+            clickCount++;
+            counter.textContent = `pmo: ${clickCount}`;
+            
+            const counterRect = counter.getBoundingClientRect();
+            protectedElements[1].x = counterRect.left + counterRect.width/2;
+            protectedElements[1].y = counterRect.top + counterRect.height/2;
+            protectedElements[1].width = counterRect.width;
+            protectedElements[1].height = counterRect.height;
+            
+            const textElement = document.createElement('div');
+            textElement.className = 'random-text';
+            
+            const randomIndex = Math.floor(Math.random() * textFragments.length);
+            textElement.textContent = textFragments[randomIndex];
+            
+            textElement.style.visibility = 'hidden';
+            body.appendChild(textElement);
+            
+            // Set base size and variation
+            const baseSize = Math.min(window.innerWidth * 0.04, 24);
+            const sizeVariation = 0.8 + Math.random() * 0.6; // 0.8-1.4 multiplier
+            textElement.style.fontSize = `${baseSize * sizeVariation}px`;
+            textElement.dataset.sizeVariation = sizeVariation;
+            
+            const textWidth = textElement.offsetWidth;
+            const textHeight = textElement.offsetHeight;
+            body.removeChild(textElement);
+            textElement.style.visibility = 'visible';
+            
+            const position = findBestPosition(textWidth, textHeight);
+            
+            textElement.style.left = `${position.x}px`;
+            textElement.style.top = `${position.y}px`;
+            
+            const rotation = (Math.random() * 60) - 30;
+            textElement.style.transform = `rotate(${rotation}deg)`;
+            
+            const hue = Math.random() * 360;
+            const saturation = position.score < 0 ? '60%' : '80%';
+            textElement.style.color = `hsl(${hue}, ${saturation}, 70%)`;
+            
+            body.appendChild(textElement);
+            
+            existingTexts.push({
+                element: textElement,
+                x: position.x + textWidth/2,
+                y: position.y + textHeight/2,
+                width: textWidth,
+                height: textHeight
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            protectedElements[0].x = window.innerWidth / 2;
+            protectedElements[0].y = window.innerHeight / 2;
+            
+            updateTextSizes();
+        });
+    </script>
+</body>
+</html>
