@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ts website pmo 💔💔</title>
+    <link rel="icon" href="icon.png">
     <style>
         body {
             margin: 0;
@@ -21,7 +22,6 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            touch-action: manipulation;
         }
         
         #ts-button {
@@ -76,18 +76,7 @@
     <div id="click-counter">pmo: 0</div>
     <button id="ts-button">ts</button>
 
-    <script>
-        // Prevent zooming on mobile
-        document.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-        
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-        
+    <script>   
         const button = document.getElementById('ts-button');
         const counter = document.getElementById('click-counter');
         const body = document.body;
@@ -98,7 +87,7 @@
         const counterRect = counter.getBoundingClientRect();
         const buttonRect = button.getBoundingClientRect();
         
-        const MIN_DISTANCE = 15; // Minimum distance from button/counter in pixels
+        const MIN_DISTANCE = 5; // Minimum distance from button/counter in pixels
         
         const protectedElements = [
             {
@@ -131,36 +120,17 @@
         function findRandomPosition(textWidth, textHeight) {
             let x, y;
             let attempts = 0;
-            const maxAttempts = 100;
             
             do {
                 x = Math.random() * (window.innerWidth - textWidth);
                 y = Math.random() * (window.innerHeight - textHeight);
                 attempts++;
                 
-                if (attempts >= maxAttempts) {
-                    // If we can't find a non-overlapping position, allow overlap with other text
-                    // but still avoid protected elements
-                    while (isOverlappingProtected(x, y, textWidth, textHeight) && attempts < maxAttempts * 2) {
-                        x = Math.random() * (window.innerWidth - textWidth);
-                        y = Math.random() * (window.innerHeight - textHeight);
-                        attempts++;
-                    }
-                    break;
-                }
             } while (isOverlappingProtected(x, y, textWidth, textHeight));
             
             return { x, y };
         }
-        
-        function resetAll() {
-            existingTexts.forEach(text => {
-                body.removeChild(text.element);
-            });
-            existingTexts.length = 0;
-            clickCount = 0;
-            counter.textContent = `pmo: ${clickCount}`;
-        }
+
         
         function calculateCoverage() {
             if (existingTexts.length === 0) return 0;
@@ -176,11 +146,6 @@
         }
         
         button.addEventListener('click', function() {
-            if (calculateCoverage() > 0.85) {
-                resetAll();
-                return;
-            }
-            
             clickCount++;
             counter.textContent = `pmo: ${clickCount}`;
             
