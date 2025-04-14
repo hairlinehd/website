@@ -20,6 +20,8 @@
             --input-border: #444;
             --output-bg: #252525;
             --output-border: #333;
+            --warning-color: #ff9800;
+            --success-color: #8bc34a;
         }
         
         body {
@@ -127,6 +129,26 @@
             line-height: 1.5;
         }
         
+        .status-message {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .warning {
+            color: var(--warning-color);
+            opacity: 1;
+        }
+        
+        .success {
+            color: var(--success-color);
+            opacity: 1;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 width: 95%;
@@ -147,18 +169,22 @@
 </head>
 <body>
     <div class="container">
-        <h1>Rancode Translator</h1>
+        <h1>translator</h1>
         
-        <textarea id="inputText" placeholder="Enter text to translate (updates automatically)..."></textarea>
+        <textarea id="inputText" placeholder="enter text"></textarea>
         
         <div class="controls">
-            <button id="copyBtn" class="copy" disabled>Copy to Clipboard</button>
+            <button id="copyBtn" class="copy" disabled>copy to clipboard</button>
         </div>
         
+        <div id="warningMessage" class="status-message"></div>
+        
         <div class="output-container">
-            <h3>Rancode Output:</h3>
+            <h3>output</h3>
             <div id="output"></div>
         </div>
+        
+        <div id="successMessage" class="status-message"></div>
     </div>
 
     <script>
@@ -177,15 +203,25 @@
             "'": "arrar", '-': "arraa", '(': "arara", ')': "raarra", 
             '"': "aarrr", '&': "rrraa", '!': "rrrra", ';': "raraa"
         };
-
-        // Cache DOM elements
         const inputText = document.getElementById('inputText');
         const output = document.getElementById('output');
         const copyBtn = document.getElementById('copyBtn');
+        const warningMessage = document.getElementById('warningMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        let unsupportedChars = new Set();
+        function showMessage(element, message, className, duration = 3000) {
+            element.textContent = message;
+            element.className = `status-message ${className}`;
+            setTimeout(() => {
+                element.className = 'status-message';
+            }, duration);
+        }
 
         function translate() {
             const text = inputText.value;
             let result = '';
+            unsupportedChars.clear();
             
             for (let char of text) {
                 const upperChar = char.toUpperCase();
@@ -195,11 +231,18 @@
                     } else {
                         result += rancode[upperChar] + ' ';
                     }
+                } else if (char !== '\n' && char !== '\r') {
+                    unsupportedChars.add(char);
                 }
             }
             
             output.textContent = result.trim();
             copyBtn.disabled = !result.trim();
+            
+            if (unsupportedChars.size > 0) {
+                const charsList = Array.from(unsupportedChars).map(c => `'${c}'`).join(', ');
+                showMessage(warningMessage, `unsupported character(s): ${charsList}`, 'warning');
+            }
         }
 
         inputText.addEventListener('input', translate);
@@ -207,10 +250,15 @@
         copyBtn.addEventListener('click', function() {
             const outputText = output.textContent;
             if (outputText) {
-                navigator.clipboard.writeText(outputText);
+                navigator.clipboard.writeText(outputText).then(() => {
+                    showMessage(successMessage, "copied to clipboard!", "success");
+                }).catch(() => {
+                    showMessage(successMessage, "failed to copy", "warning");
+                });
             }
         });
 
+        // Initialize
         translate();
     </script>
 </body>
