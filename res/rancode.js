@@ -25,18 +25,22 @@ const inputText = document.getElementById('inputText');
 const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 const warningMessage = document.getElementById('warningMessage');
+const errorMessage = document.getElementById('errorMessage');
 const translateIndicator = document.getElementById('translateIndicator');
 
 let unsupportedChars = new Set();
+let unknownCodes = new Set();
 
 function showMessage(element, message, className) {
     element.textContent = message;
     element.className = `status-box ${className}`;
+    element.style.display = 'block';
 }
 
 function clearMessage(element) {
     element.textContent = '';
     element.className = 'status-box';
+    element.style.display = 'none';
 }
 
 function isRancode(input) {
@@ -62,6 +66,7 @@ function isRancode(input) {
 function textToRancode(text) {
     let result = '';
     unsupportedChars.clear();
+    clearMessage(errorMessage);
     
     for (let char of text) {
         const upperChar = char.toUpperCase();
@@ -89,8 +94,10 @@ function textToRancode(text) {
 
 function rancodeToText(text) {
     let result = '';
+    unknownCodes.clear();
+    clearMessage(warningMessage);
+    
     const rancodeWords = text.split(' ');
-    let unknownCodes = new Set();
     
     for (const code of rancodeWords) {
         if (code === '') continue;
@@ -107,6 +114,13 @@ function rancodeToText(text) {
         } else {
             unknownCodes.add(code);
         }
+    }
+    
+    if (unknownCodes.size > 0) {
+        const codesList = Array.from(unknownCodes).map(c => `'${c}'`).join(', ');
+        showMessage(errorMessage, `unknown rancode: ${codesList}`, 'error');
+    } else {
+        clearMessage(errorMessage);
     }
     
     showMessage(translateIndicator, "rancode to text", "translation-direction");
@@ -144,10 +158,11 @@ copyBtn.addEventListener('click', function() {
                 }
             }, 2000);
         }).catch(() => {
-            showMessage(translateIndicator, "failed to copy", "warning");
+            showMessage(translateIndicator, "failed to copy", "error");
             setTimeout(translate, 1500);
         });
     }
 });
-
+warningMessage.style.display = 'none';
+errorMessage.style.display = 'none';
 showMessage(translateIndicator, "waiting for input", "translation-direction");

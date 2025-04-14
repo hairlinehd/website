@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="res/rancode.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="res/ranicon.png">
+    <link rel="stylesheet" href="res/rancode.css">
     <title>rancode translator</title>
 </head>
 <body>
@@ -13,21 +13,21 @@
         <textarea id="inputText" placeholder="enter text or rancode to translate"></textarea>
         
         <div class="controls">
-            <button id="copyBtn" class="copy" disabled>copy to clipboard</button>
+            <div class="button-row">
+                <button id="copyBtn" class="copy" disabled>copy to clipboard</button>
+            </div>
+            <div class="status-container">
+                <div id="warningMessage" class="status-box warning"></div>
+                <div id="errorMessage" class="status-box error"></div>
+                <div id="translateIndicator" class="status-box translation-direction">waiting for input</div>
+            </div>
         </div>
         
         <div class="output-container">
-            <div class="output-header">
-                <h3>output</h3>
-                <div class="status-container">
-                    <div id="warningMessage" class="status-box warning"></div>
-                    <div id="translateIndicator" class="status-box translation-direction">waiting for input</div>
-                </div>
-            </div>
             <div id="output"></div>
         </div>
     </div>
 
-    <script src="res/rancode.js"></script>
+    <script src="res/rancode.js"> </script>
 </body>
 </html>
