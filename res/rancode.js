@@ -108,13 +108,6 @@ function rancodeToText(text) {
             unknownCodes.add(code);
         }
     }
-
-    if (unknownCodes.size > 0) {
-        const codesList = Array.from(unknownCodes).map(c => `'${c}'`).join(', ');
-        showMessage(warningMessage, `Unknown: ${codesList}`, 'warning');
-    } else {
-        clearMessage(warningMessage);
-    }
     
     showMessage(translateIndicator, "rancode to text", "translation-direction");
     return result;
