@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rancode Translator</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --secondary-color: #2196F3;
+            --secondary-hover: #0b7dda;
+            --text-color: #e0e0e0;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --spacing-unit: 1rem;
+            --input-bg: #2d2d2d;
+            --input-border: #444;
+            --output-bg: #252525;
+            --output-border: #333;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: var(--spacing-unit);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: min(90%, 800px);
+            background-color: var(--card-bg);
+            padding: clamp(1rem, 3vw, 2rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin: auto;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: clamp(1rem, 3vw, 1.5rem);
+            width: 100%;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: clamp(100px, 30vh, 300px);
+            padding: clamp(0.5rem, 2vw, 1rem);
+            margin-bottom: var(--spacing-unit);
+            border: 1px solid var(--input-border);
+            border-radius: calc(var(--border-radius) / 2);
+            resize: vertical;
+            font-family: inherit;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .controls {
+            display: flex;
+            gap: var(--spacing-unit);
+            margin: clamp(0.5rem, 2vw, 1rem) 0;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        button {
+            flex: 1 1 auto;
+            min-width: 120px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+            border-radius: calc(var(--border-radius) / 2);
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: background-color 0.2s;
+            max-width: 200px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        button.copy {
+            background-color: var(--secondary-color);
+        }
+        
+        button.copy:hover {
+            background-color: var(--secondary-hover);
+        }
+        
+        .output-container {
+            margin-top: clamp(1rem, 3vw, 2rem);
+            width: 100%;
+        }
+        
+        #output {
+            background-color: var(--output-bg);
+            padding: clamp(0.75rem, 2vw, 1.25rem);
+            border-radius: calc(var(--border-radius) / 2);
+            min-height: clamp(50px, 20vh, 200px);
+            overflow-wrap: break-word;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            border: 1px solid var(--output-border);
+            white-space: pre-wrap;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rancode Translator</h1>
+        
+        <textarea id="inputText" placeholder="Enter text to translate (updates automatically)..."></textarea>
+        
+        <div class="controls">
+            <button id="copyBtn" class="copy" disabled>Copy to Clipboard</button>
+        </div>
+        
+        <div class="output-container">
+            <h3>Rancode Output:</h3>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        const rancode = {
+            'A': "ra", 'B': "arrr", 'C': "arar", 'D': "arr", 'E': "r", 
+            'F': "rrar", 'G': "aar", 'H': "rrrr", 'I': "rr", 'J': "raaa", 
+            'K': "ara", 'L': "rarr", 'M': "aa", 'N': "ar", 'O': "aaa", 
+            'P': "raar", 'Q': "aara", 'R': "rar", 'S': "rrr", 'T': "a", 
+            'U': "rra", 'V': "aaar", 'W': "raa", 'X': "arra", 'Y': "araa", 
+            'Z': "aarr",
+            '0': "aaaaa", '1': "naaaa", '2': "nnaaa", '3': "nnnaa", 
+            '4': "nnnna", '5': "nnnnn", '6': "annnn", '7': "aannn", 
+            '8': "aaann", '9': "aaaan",
+            ' ': "ts",
+            '.': "rrara", ',': "rraar", ':': "aaara", '?': "rarra", 
+            "'": "arrar", '-': "arraa", '(': "arara", ')': "raarra", 
+            '"': "aarrr", '&': "rrraa", '!': "rrrra", ';': "raraa"
+        };
+
+        // Cache DOM elements
+        const inputText = document.getElementById('inputText');
+        const output = document.getElementById('output');
+        const copyBtn = document.getElementById('copyBtn');
+
+        function translate() {
+            const text = inputText.value;
+            let result = '';
+            
+            for (let char of text) {
+                const upperChar = char.toUpperCase();
+                if (rancode[upperChar]) {
+                    if (char === char.toUpperCase() && char !== char.toLowerCase()) {
+                        result += '!' + rancode[upperChar] + ' ';
+                    } else {
+                        result += rancode[upperChar] + ' ';
+                    }
+                }
+            }
+            
+            output.textContent = result.trim();
+            copyBtn.disabled = !result.trim();
+        }
+
+        inputText.addEventListener('input', translate);
+        
+        copyBtn.addEventListener('click', function() {
+            const outputText = output.textContent;
+            if (outputText) {
+                navigator.clipboard.writeText(outputText);
+            }
+        });
+
+        translate();
+    </script>
+</body>
+</html>
