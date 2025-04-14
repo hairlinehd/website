@@ -64,10 +64,10 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     font-size: min(4vw, 32px);
-    text-decoration: none; /* Removes underline from link */
-    cursor: pointer; /* Changes cursor to hand pointer */
+    text-decoration: none; 
+    cursor: pointer; 
 }
 
 #rancode:hover {
-    background-color: rgba(70,70,70,0.7); /* Slight hover effect */
+    background-color: rgba(70,70,70,0.7); 
 }
