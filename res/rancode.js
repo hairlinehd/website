@@ -1,4 +1,3 @@
-// Rancode table
 const rancodeTable = {
     'A': "ra", 'B': "arrr", 'C': "arar", 'D': "arr", 'E': "r", 
     'F': "rrar", 'G': "aar", 'H': "rrrr", 'I': "rr", 'J': "raaa", 
@@ -15,16 +14,13 @@ const rancodeTable = {
     '"': "aarrr", '&': "rrraa", '!': "rrrra", ';': "raraa"
 };
 
-// Reverse Rancode table (for decoding)
 const reverseRancodeTable = {};
 for (const [key, value] of Object.entries(rancodeTable)) {
     reverseRancodeTable[value] = key;
 }
 
-// All valid Rancode patterns
 const rancodePatterns = new Set(Object.values(rancodeTable));
 
-// Cache DOM elements
 const inputText = document.getElementById('inputText');
 const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
