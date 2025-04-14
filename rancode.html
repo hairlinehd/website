@@ -3,263 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>translate</title>
-    <style>
-        :root {
-            --primary-color: #4CAF50;
-            --primary-hover: #45a049;
-            --secondary-color: #2196F3;
-            --secondary-hover: #0b7dda;
-            --text-color: #e0e0e0;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            --spacing-unit: 1rem;
-            --input-bg: #2d2d2d;
-            --input-border: #444;
-            --output-bg: #252525;
-            --output-border: #333;
-            --warning-color: #ff9800;
-            --success-color: #8bc34a;
-        }
-        
-        body {
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            padding: var(--spacing-unit);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .container {
-            width: min(90%, 800px);
-            background-color: var(--card-bg);
-            padding: clamp(1rem, 3vw, 2rem);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin: auto;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        h1 {
-            color: var(--text-color);
-            text-align: center;
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            margin-bottom: clamp(1rem, 3vw, 1.5rem);
-            width: 100%;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: clamp(100px, 30vh, 300px);
-            padding: clamp(0.5rem, 2vw, 1rem);
-            margin-bottom: var(--spacing-unit);
-            border: 1px solid var(--input-border);
-            border-radius: calc(var(--border-radius) / 2);
-            resize: vertical;
-            font-family: inherit;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            background-color: var(--input-bg);
-            color: var(--text-color);
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        .controls {
-            display: flex;
-            gap: var(--spacing-unit);
-            margin: clamp(0.5rem, 2vw, 1rem) 0;
-            flex-wrap: wrap;
-            width: 100%;
-            justify-content: center;
-        }
-        
-        button {
-            flex: 1 1 auto;
-            min-width: 120px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
-            border-radius: calc(var(--border-radius) / 2);
-            cursor: pointer;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            transition: background-color 0.2s;
-            max-width: 200px;
-        }
-        
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        button.copy {
-            background-color: var(--secondary-color);
-        }
-        
-        button.copy:hover {
-            background-color: var(--secondary-hover);
-        }
-        
-        .output-container {
-            margin-top: clamp(1rem, 3vw, 2rem);
-            width: 100%;
-        }
-        
-        #output {
-            background-color: var(--output-bg);
-            padding: clamp(0.75rem, 2vw, 1.25rem);
-            border-radius: calc(var(--border-radius) / 2);
-            min-height: clamp(50px, 20vh, 200px);
-            overflow-wrap: break-word;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            border: 1px solid var(--output-border);
-            white-space: pre-wrap;
-            color: var(--text-color);
-            line-height: 1.5;
-        }
-        
-        .status-message {
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .warning {
-            color: var(--warning-color);
-            opacity: 1;
-        }
-        
-        .success {
-            color: var(--success-color);
-            opacity: 1;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                width: 95%;
-                padding: 1rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            button {
-                width: 100%;
-                max-width: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="res/rancode.css">
+    <link rel="icon" href="res/ranicon.png">
+    <title>rancode translator</title>
 </head>
 <body>
     <div class="container">
         <h1>translator</h1>
-        
-        <textarea id="inputText" placeholder="enter text"></textarea>
+        <textarea id="inputText" placeholder="enter text or rancode to translate"></textarea>
         
         <div class="controls">
             <button id="copyBtn" class="copy" disabled>copy to clipboard</button>
         </div>
         
-        <div id="warningMessage" class="status-message"></div>
-        
         <div class="output-container">
-            <h3>output</h3>
+            <div class="output-header">
+                <h3>output</h3>
+                <div class="status-container">
+                    <div id="warningMessage" class="status-box warning"></div>
+                    <div id="translateIndicator" class="status-box translation-direction">waiting for input</div>
+                </div>
+            </div>
             <div id="output"></div>
         </div>
-        
-        <div id="successMessage" class="status-message"></div>
     </div>
 
-    <script>
-        const rancode = {
-            'A': "ra", 'B': "arrr", 'C': "arar", 'D': "arr", 'E': "r", 
-            'F': "rrar", 'G': "aar", 'H': "rrrr", 'I': "rr", 'J': "raaa", 
-            'K': "ara", 'L': "rarr", 'M': "aa", 'N': "ar", 'O': "aaa", 
-            'P': "raar", 'Q': "aara", 'R': "rar", 'S': "rrr", 'T': "a", 
-            'U': "rra", 'V': "aaar", 'W': "raa", 'X': "arra", 'Y': "araa", 
-            'Z': "aarr",
-            '0': "aaaaa", '1': "naaaa", '2': "nnaaa", '3': "nnnaa", 
-            '4': "nnnna", '5': "nnnnn", '6': "annnn", '7': "aannn", 
-            '8': "aaann", '9': "aaaan",
-            ' ': "ts",
-            '.': "rrara", ',': "rraar", ':': "aaara", '?': "rarra", 
-            "'": "arrar", '-': "arraa", '(': "arara", ')': "raarra", 
-            '"': "aarrr", '&': "rrraa", '!': "rrrra", ';': "raraa"
-        };
-        const inputText = document.getElementById('inputText');
-        const output = document.getElementById('output');
-        const copyBtn = document.getElementById('copyBtn');
-        const warningMessage = document.getElementById('warningMessage');
-        const successMessage = document.getElementById('successMessage');
-
-        let unsupportedChars = new Set();
-        function showMessage(element, message, className, duration = 3000) {
-            element.textContent = message;
-            element.className = `status-message ${className}`;
-            setTimeout(() => {
-                element.className = 'status-message';
-            }, duration);
-        }
-
-        function translate() {
-            const text = inputText.value;
-            let result = '';
-            unsupportedChars.clear();
-            
-            for (let char of text) {
-                const upperChar = char.toUpperCase();
-                if (rancode[upperChar]) {
-                    if (char === char.toUpperCase() && char !== char.toLowerCase()) {
-                        result += '!' + rancode[upperChar] + ' ';
-                    } else {
-                        result += rancode[upperChar] + ' ';
-                    }
-                } else if (char !== '\n' && char !== '\r') {
-                    unsupportedChars.add(char);
-                }
-            }
-            
-            output.textContent = result.trim();
-            copyBtn.disabled = !result.trim();
-            
-            if (unsupportedChars.size > 0) {
-                const charsList = Array.from(unsupportedChars).map(c => `'${c}'`).join(', ');
-                showMessage(warningMessage, `unsupported character(s): ${charsList}`, 'warning');
-            }
-        }
-
-        inputText.addEventListener('input', translate);
-        
-        copyBtn.addEventListener('click', function() {
-            const outputText = output.textContent;
-            if (outputText) {
-                navigator.clipboard.writeText(outputText).then(() => {
-                    showMessage(successMessage, "copied to clipboard!", "success");
-                }).catch(() => {
-                    showMessage(successMessage, "failed to copy", "warning");
-                });
-            }
-        });
-
-        // Initialize
-        translate();
-    </script>
+    <script src="res/rancode.js"></script>
 </body>
 </html>
