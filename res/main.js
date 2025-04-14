@@ -1,35 +1,41 @@
-const button = document.getElementById('ts-button');
+        const button = document.getElementById('ts-button');
         const counter = document.getElementById('click-counter');
+        const rancode = document.getElementById('rancode');
         const body = document.body;
         let clickCount = 0;
         const existingTexts = [];
         
         const textFragments = ["j*b", "emp*oyment", "🥀", "💔", "ts", "icl", "jail", "prison", "pmo", "sybau"];
         
-        // Minimum padding around protected elements (in pixels)
         const MIN_PADDING = 30;
         
-        // Get initial protected areas
         const buttonRect = button.getBoundingClientRect();
         const counterRect = counter.getBoundingClientRect();
+        const rancodeRect = rancode.getBoundingClientRect();
+
         let protectedAreas = [
-            { // Button area
+            { // button area
                 x: buttonRect.left,
                 y: buttonRect.top,
                 width: buttonRect.width,
                 height: buttonRect.height
             },
-            { // Counter area
+            { // pmo area
                 x: counterRect.left,
                 y: counterRect.top,
                 width: counterRect.width,
                 height: counterRect.height
+            },
+            { // rancode area
+                x: rancodeRect.left,
+                y: rancodeRect.top,
+                width: rancodeRect.width,
+                height: rancodeRect.height
             }
+
         ];
 
-        // Check if position conflicts with protected areas
         function isPositionValid(x, y, width, height) {
-            // Check against protected areas
             for (const area of protectedAreas) {
                 if (x + width > area.x - MIN_PADDING && 
                     x < area.x + area.width + MIN_PADDING &&
@@ -41,7 +47,6 @@ const button = document.getElementById('ts-button');
             return true;
         }
 
-        // Find random valid position
         function findRandomPosition(textWidth, textHeight) {
             let attempts = 0;
             const maxAttempts = 100;
@@ -56,7 +61,6 @@ const button = document.getElementById('ts-button');
                 attempts++;
             }
             
-            // Fallback position (may overlap but avoids protected areas)
             return {
                 x: Math.max(0, Math.min(
                     window.innerWidth - textWidth, 
@@ -73,21 +77,27 @@ const button = document.getElementById('ts-button');
             clickCount++;
             counter.textContent = `pmo: ${clickCount}`;
             
-            // Update protected areas in case of resize
             const buttonRect = button.getBoundingClientRect();
             const counterRect = counter.getBoundingClientRect();
+            const rancodeRect = rancode.getBoundingClientRect();
             protectedAreas = [
-                {
+                { 
                     x: buttonRect.left,
                     y: buttonRect.top,
                     width: buttonRect.width,
                     height: buttonRect.height
                 },
-                {
+                { 
                     x: counterRect.left,
                     y: counterRect.top,
                     width: counterRect.width,
                     height: counterRect.height
+                },
+                { 
+                    x: rancodeRect.left,
+                    y: rancodeRect.top,
+                    width: rancodeRect.width,
+                    height: rancodeRect.height
                 }
             ];
             
@@ -95,7 +105,7 @@ const button = document.getElementById('ts-button');
             textElement.className = 'random-text';
             textElement.textContent = textFragments[Math.floor(Math.random() * textFragments.length)];
             
-            // Measure text dimensions
+
             textElement.style.visibility = 'hidden';
             body.appendChild(textElement);
             const baseSize = Math.min(window.innerWidth * 0.04, 24);
@@ -103,8 +113,7 @@ const button = document.getElementById('ts-button');
             textElement.style.fontSize = `${baseSize * sizeVariation}px`;
             const textWidth = textElement.offsetWidth;
             const textHeight = textElement.offsetHeight;
-            
-            // Find and set position
+ 
             const position = findRandomPosition(textWidth, textHeight);
             textElement.style.left = `${position.x}px`;
             textElement.style.top = `${position.y}px`;
@@ -115,10 +124,10 @@ const button = document.getElementById('ts-button');
             existingTexts.push(textElement);
         });
 
-        // Handle window resize
         window.addEventListener('resize', function() {
             const buttonRect = button.getBoundingClientRect();
             const counterRect = counter.getBoundingClientRect();
+            const rancodeRect = rancode.getBoundingClientRect();
             protectedAreas = [
                 {
                     x: buttonRect.left,
@@ -131,6 +140,12 @@ const button = document.getElementById('ts-button');
                     y: counterRect.top,
                     width: counterRect.width,
                     height: counterRect.height
+                },
+                {
+                    x: rancodeRect.left,
+                    y: rancodeRect.top,
+                    width: rancodeRect.width,
+                    height: rancodeRect.height
                 }
             ];
         });

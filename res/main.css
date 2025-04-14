@@ -52,3 +52,22 @@ body {
     border-radius: 5px;
     font-size: min(4vw, 32px);
 }
+
+#rancode {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: min(4vw, 32px);
+    text-decoration: none; /* Removes underline from link */
+    cursor: pointer; /* Changes cursor to hand pointer */
+}
+
+#rancode:hover {
+    background-color: rgba(70,70,70,0.7); /* Slight hover effect */
+}
