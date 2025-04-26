@@ -2,6 +2,11 @@ const button = document.getElementById('ts-button');
 const counter = document.getElementById('click-counter');
 const rancode = document.getElementById('rancode');
 const body = document.body;
+
+rancode.addEventListener('mouseover', () => {
+    fetch('rancode.html');
+});
+
 let clickCount = 0;
 const existingText = [];
 
